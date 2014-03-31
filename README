@@ -187,7 +187,7 @@ We will see a typical configuration for protecting a Django project::
             'optional_attributes': ['eduPersonAffiliation'],
 
             # in this section the list of IdPs we talk to are defined
-            'idp': {
+            'idpsso': {
                 # we do not need a WAYF service since there is
                 # only an IdP defined here. This IdP should be
                 # present in our metadata
