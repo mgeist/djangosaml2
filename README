@@ -1,5 +1,13 @@
 .. contents::
 
+This project was forked from here: https://bitbucket.org/johntheodore/djangosaml2
+
+The project hasn't done a pypi update to allow django 1.6 to work yet. So I would have to do -e hg+ in my requirements.txt for pip.
+I didn't want all our developers to install mercurial (hg), and put hg on the build system, so I used http://repo.or.cz/w/fast-export.git
+to convert the mercurial project to a git project, and threw it up on github. :)
+
+Make sure you check the original bitbucket page for the latest updates.
+
 ===========
 djangosaml2
 ===========
