@@ -131,9 +131,13 @@ def login(request,
     # fix up the redirect url for endpoints that have ? in the link
     split_location = location.split('?SAMLRequest=')
     if split_location and '?' in split_location[0]:
-        # first part of the url already has a url parameter
-        logger.debug('Redirect URL already has query string, transforming redirect url')
+        logger.debug('Redirect URL already has query string, transforming ?SAMLRequest=')
         location = location.replace('?SAMLRequest=', '&SAMLRequest=')
+
+    split_location = location.split('?RelayState=')
+    if split_location and '?' in split_location[0]:
+        logger.debug('Redirect URL already has query string, transforming ?RelayState=')
+        location = location.replace('?RelayState=', '&RelayState=')
 
     logger.debug('Saving the session_id in the OutstandingQueries cache')
     oq_cache = OutstandingQueriesCache(request.session)
