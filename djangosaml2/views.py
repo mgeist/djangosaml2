@@ -128,6 +128,13 @@ def login(request,
     assert result[0] == 'Location'
     location = result[1]
 
+    # fix up the redirect url for endpoints that have ? in the link
+    split_location = location.split('?SAMLRequest=')
+    if split_location and '?' in split_location[0]:
+        # first part of the url already has a url parameter
+        logger.debug('Redirect URL already has query string, transforming redirect url')
+        location = location.replace('?SAMLRequest=', '&SAMLRequest=')
+
     logger.debug('Saving the session_id in the OutstandingQueries cache')
     oq_cache = OutstandingQueriesCache(request.session)
     oq_cache.set(session_id, came_from)
