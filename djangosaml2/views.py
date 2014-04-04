@@ -133,6 +133,7 @@ def login(request,
     oq_cache.set(session_id, came_from)
 
     logger.debug('Redirecting the user to the IdP')
+    logger.debug('Redirecting to %s' % location)
     return HttpResponseRedirect(location)
 
 
