@@ -17,12 +17,20 @@ import logging
 
 from django.conf import settings
 from django.contrib.auth.backends import ModelBackend
-from django.contrib.auth.models import User, SiteProfileNotAvailable
+from django.contrib.auth.models import SiteProfileNotAvailable
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 
 from djangosaml2.signals import pre_user_save
 
 logger = logging.getLogger('djangosaml2')
+
+
+try:
+    # for Django > 1.5
+    from django.contrib.auth import get_user_model
+    User = get_user_model()
+except ImportError:
+    from django.contrib.auth.models import User
 
 
 class Saml2Backend(ModelBackend):
@@ -49,7 +57,7 @@ class Saml2Backend(ModelBackend):
         saml_user = None
         for saml_attr, django_fields in attribute_mapping.items():
             if (django_user_main_attribute in django_fields
-                and saml_attr in attributes):
+                    and saml_attr in attributes):
                 saml_user = attributes[saml_attr][0]
 
         if saml_user is None:
@@ -135,12 +143,16 @@ class Saml2Backend(ModelBackend):
         if not attribute_mapping:
             return user
 
-        try:
-            profile = user.get_profile()
-        except ObjectDoesNotExist:
+        if get_user_model:
+            # custom user model is available, do not use the profile
             profile = None
-        except SiteProfileNotAvailable:
-            profile = None
+        else:
+            try:
+                profile = user.get_profile()
+            except ObjectDoesNotExist:
+                profile = None
+            except SiteProfileNotAvailable:
+                profile = None
 
         user_modified = False
         profile_modified = False
@@ -173,7 +185,7 @@ class Saml2Backend(ModelBackend):
             user.save()
 
         if (profile is not None
-            and (profile_modified or signal_modified or force_save)):
+                and (profile_modified or signal_modified or force_save)):
             profile.save()
 
         return user
