@@ -31,6 +31,7 @@ try:
 except AttributeError:
     User = auth.models.User
 
+
 class Saml2Backend(ModelBackend):
 
     def authenticate(self, session_info=None, attribute_mapping=None,
@@ -55,7 +56,7 @@ class Saml2Backend(ModelBackend):
         saml_user = None
         for saml_attr, django_fields in attribute_mapping.items():
             if (django_user_main_attribute in django_fields
-                and saml_attr in attributes):
+                    and saml_attr in attributes):
                 saml_user = attributes[saml_attr][0]
 
         if saml_user is None:
@@ -182,7 +183,7 @@ class Saml2Backend(ModelBackend):
             user.save()
 
         if (profile is not None
-            and (profile_modified or signal_modified or force_save)):
+                and (profile_modified or signal_modified or force_save)):
             profile.save()
 
         return user
