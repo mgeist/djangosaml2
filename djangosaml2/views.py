@@ -25,7 +25,8 @@ from django.contrib import auth
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import logout as django_logout
 from django.http import Http404, HttpResponse
-from django.http import HttpResponseRedirect, HttpResponseBadRequest, HttpResponseForbidden
+from django.http import (
+    HttpResponseRedirect, HttpResponseBadRequest, HttpResponseForbidden)
 from django.views.decorators.http import require_POST
 from django.shortcuts import render_to_response
 from django.template import RequestContext
@@ -90,7 +91,8 @@ def login(request,
     # Otherwise, we will show an (configurable) authorization error.
     if not request.user.is_anonymous():
         try:
-            redirect_authenticated_user = settings.SAML_IGNORE_AUTHENTICATED_USERS_ON_LOGIN
+            redirect_authenticated_user = (
+                settings.SAML_IGNORE_AUTHENTICATED_USERS_ON_LOGIN)
         except AttributeError:
             redirect_authenticated_user = True
 
@@ -99,8 +101,8 @@ def login(request,
         else:
             logger.debug('User is already logged in')
             return render_to_response(authorization_error_template, {
-                    'came_from': came_from,
-                    }, context_instance=RequestContext(request))
+                'came_from': came_from,
+                }, context_instance=RequestContext(request))
 
     selected_idp = request.GET.get('idp', None)
     conf = get_config(config_loader_path, request)
@@ -110,9 +112,9 @@ def login(request,
     if selected_idp is None and len(idps) > 1:
         logger.debug('A discovery process is needed')
         return render_to_response(wayf_template, {
-                'available_idps': idps.items(),
-                'came_from': came_from,
-                }, context_instance=RequestContext(request))
+            'available_idps': idps.items(),
+            'came_from': came_from,
+            }, context_instance=RequestContext(request))
 
     client = Saml2Client(conf, logger=logger)
     try:
@@ -131,12 +133,16 @@ def login(request,
     # fix up the redirect url for endpoints that have ? in the link
     split_location = location.split('?SAMLRequest=')
     if split_location and '?' in split_location[0]:
-        logger.debug('Redirect URL already has query string, transforming ?SAMLRequest=')
+        logger.debug(
+            'Redirect URL already has query string, ' +
+            'transforming ?SAMLRequest=')
         location = location.replace('?SAMLRequest=', '&SAMLRequest=')
 
     split_location = location.split('?RelayState=')
     if split_location and '?' in split_location[0]:
-        logger.debug('Redirect URL already has query string, transforming ?RelayState=')
+        logger.debug(
+            'Redirect URL already has query string, ' +
+            'transforming ?RelayState=')
         location = location.replace('?RelayState=', '&RelayState=')
 
     logger.debug('Saving the session_id in the OutstandingQueries cache')
@@ -163,9 +169,9 @@ def assertion_consumer_service(request,
     enabled in the settings.py
     """
     attribute_mapping = attribute_mapping or get_custom_setting(
-            'SAML_ATTRIBUTE_MAPPING', {'uid': ('username', )})
+        'SAML_ATTRIBUTE_MAPPING', {'uid': ('username', )})
     create_unknown_user = create_unknown_user or get_custom_setting(
-            'SAML_CREATE_UNKNOWN_USER', True)
+        'SAML_CREATE_UNKNOWN_USER', True)
     logger.debug('Assertion Consumer Service started')
 
     conf = get_config(config_loader_path, request)
@@ -303,7 +309,8 @@ def logout_service(request, config_loader_path=None, next_page=None,
         subject_id = _get_subject_id(request.session)
         if subject_id is None:
             logger.warning(
-                'The session does not contain the subject id for user %s. Performing local logout'
+                'The session does not contain the subject id for user %s. ' +
+                'Performing local logout'
                 % request.user)
             auth.logout(request)
             return render_to_response(logout_error_template, {},

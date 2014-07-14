@@ -20,6 +20,7 @@ from django.contrib import auth
 from django.contrib.auth.backends import ModelBackend
 from django.contrib.auth.models import SiteProfileNotAvailable
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
+from django.db import transaction
 
 from djangosaml2.signals import pre_user_save
 
@@ -40,7 +41,7 @@ class Saml2Backend(ModelBackend):
             logger.error('Session info or attribute mapping are None')
             return None
 
-        if not 'ava' in session_info:
+        if 'ava' not in session_info:
             logger.error('"ava" key not found in session_info')
             return None
 
@@ -79,7 +80,9 @@ class Saml2Backend(ModelBackend):
             logger.debug('Check if the user "%s" exists or create otherwise'
                          % main_attribute)
             try:
-                user, created = User.objects.get_or_create(**user_query_args)
+                with transaction.atomic():
+                    user, created = User.objects.get_or_create(
+                        **user_query_args)
             except MultipleObjectsReturned:
                 logger.error("There are more than one user with %s = %s" %
                              (django_user_main_attribute, main_attribute))
@@ -87,15 +90,21 @@ class Saml2Backend(ModelBackend):
 
             if created:
                 logger.debug('New user created')
-                user = self.configure_user(user, attributes, attribute_mapping)
+                with transaction.atomic():
+                    user = self.configure_user(
+                        user, attributes, attribute_mapping)
             else:
                 logger.debug('User updated')
-                user = self.update_user(user, attributes, attribute_mapping)
+                with transaction.atomic():
+                    user = self.update_user(
+                        user, attributes, attribute_mapping)
         else:
             logger.debug('Retrieving existing user "%s"' % main_attribute)
             try:
                 user = User.objects.get(**user_query_args)
-                user = self.update_user(user, attributes, attribute_mapping)
+                with transaction.atomic():
+                    user = self.update_user(
+                        user, attributes, attribute_mapping)
             except User.DoesNotExist:
                 logger.error('The user "%s" does not exist' % main_attribute)
                 return None
