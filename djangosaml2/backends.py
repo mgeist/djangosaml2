@@ -58,7 +58,7 @@ class Saml2Backend(ModelBackend):
         for saml_attr, django_fields in attribute_mapping.items():
             if (django_user_main_attribute in django_fields
                     and saml_attr in attributes):
-                saml_user = attributes[saml_attr][0]
+                saml_user = self._get_saml_value(attributes, saml_attr)
 
         if saml_user is None:
             logger.error('Could not find saml_user value')
@@ -168,12 +168,14 @@ class Saml2Backend(ModelBackend):
                 for attr in django_attrs:
                     if hasattr(user, attr):
                         modified = self._set_attribute(
-                            user, attr, attributes[saml_attr][0])
+                            user, attr,
+                            self._get_saml_value(attributes, saml_attr))
                         user_modified = user_modified or modified
 
                     elif profile is not None and hasattr(profile, attr):
                         modified = self._set_attribute(
-                            profile, attr, attributes[saml_attr][0])
+                            profile, attr,
+                            self._get_saml_value(attributes, saml_attr))
                         profile_modified = profile_modified or modified
 
             except KeyError:
@@ -196,6 +198,11 @@ class Saml2Backend(ModelBackend):
             profile.save()
 
         return user
+
+    def _get_saml_value(self, attributes, saml_attr):
+        """Get a SAML attribute value."""
+        # prefer the last value for this attribute if multiple exists
+        return attributes[saml_attr][-1]
 
     def _set_attribute(self, obj, attr, value):
         """Set an attribute of an object to a specific value.
