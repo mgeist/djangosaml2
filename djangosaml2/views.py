@@ -342,6 +342,15 @@ def metadata(request, config_loader_path=None, valid_for=None):
     conf = get_config(config_loader_path, request)
     valid_for = valid_for or get_custom_setting('SAML_VALID_FOR', 24)
     metadata = entity_descriptor(conf, valid_for)
+
+    saml_token = request.GET.get('saml_token')
+    if saml_token:
+        # inject the saml token to the sp urls
+        for descriptor in metadata.spsso_descriptor.assertion_consumer_service:
+            descriptor.location += '?saml_token=%s' % saml_token
+        for descriptor in metadata.spsso_descriptor.single_logout_service:
+            descriptor.location += '?saml_token=%s' % saml_token
+
     return HttpResponse(content=str(metadata),
                         content_type="text/xml; charset=utf8")
 
