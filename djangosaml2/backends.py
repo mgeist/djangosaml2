@@ -64,7 +64,7 @@ class Saml2Backend(ModelBackend):
             logger.error('Could not find saml_user value')
             return None
 
-        if not self.is_authorized(attributes, attribute_mapping, session_info):
+        if not self.is_authorized(attributes, attribute_mapping):
             return None
 
         user = None
@@ -115,7 +115,7 @@ class Saml2Backend(ModelBackend):
 
         return user
 
-    def is_authorized(self, attributes, attribute_mapping, session_info):
+    def is_authorized(self, attributes, attribute_mapping):
         """Hook to allow custom authorization policies based on
         SAML attributes.
         """
