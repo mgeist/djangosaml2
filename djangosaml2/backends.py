@@ -18,7 +18,6 @@ import logging
 from django.conf import settings
 from django.contrib import auth
 from django.contrib.auth.backends import ModelBackend
-from django.contrib.auth.models import SiteProfileNotAvailable
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.db import transaction
 
@@ -154,8 +153,6 @@ class Saml2Backend(ModelBackend):
         try:
             profile = user.get_profile()
         except ObjectDoesNotExist:
-            profile = None
-        except SiteProfileNotAvailable:
             profile = None
         # Django 1.5 custom model assumed
         except AttributeError:
