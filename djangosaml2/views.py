@@ -15,38 +15,35 @@
 
 import logging
 
+from django.conf import settings
+from django.contrib import auth
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.views import logout as django_logout
+from django.http import (Http404, HttpResponse, HttpResponseBadRequest,
+                         HttpResponseForbidden, HttpResponseRedirect)
+from django.shortcuts import render_to_response
+from django.template import RequestContext
+from django.views.decorators.http import require_POST
+from djangosaml2.cache import (IdentityCache, OutstandingQueriesCache,
+                               StateCache)
+from djangosaml2.conf import get_config
+from djangosaml2.signals import post_authenticated
+from djangosaml2.utils import get_custom_setting
+from saml2 import BINDING_HTTP_REDIRECT
+from saml2.client import Saml2Client
+from saml2.metadata import entity_descriptor
+
 try:
     from xml.etree import ElementTree
 except ImportError:
     from elementtree import ElementTree
 
-from django.conf import settings
-from django.contrib import auth
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.views import logout as django_logout
-from django.http import Http404, HttpResponse
-from django.http import (
-    HttpResponseRedirect, HttpResponseBadRequest, HttpResponseForbidden)
-from django.views.decorators.http import require_POST
-from django.shortcuts import render_to_response
-from django.template import RequestContext
 try:
     from django.views.decorators.csrf import csrf_exempt
 except ImportError:
     # Django 1.0 compatibility
     def csrf_exempt(view_func):
         return view_func
-
-from saml2 import BINDING_HTTP_REDIRECT
-from saml2.client import Saml2Client
-from saml2.metadata import entity_descriptor
-
-from djangosaml2.cache import IdentityCache, OutstandingQueriesCache
-from djangosaml2.cache import StateCache
-from djangosaml2.conf import get_config
-from djangosaml2.signals import post_authenticated
-from djangosaml2.utils import get_custom_setting
-
 
 logger = logging.getLogger('djangosaml2')
 

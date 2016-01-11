@@ -13,7 +13,6 @@
 # limitations under the License.
 
 from django import template
-
 from djangosaml2.conf import config_settings_loader
 
 register = template.Library()

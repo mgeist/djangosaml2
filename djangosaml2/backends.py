@@ -18,9 +18,8 @@ import logging
 from django.conf import settings
 from django.contrib import auth
 from django.contrib.auth.backends import ModelBackend
-from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
+from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.db import transaction
-
 from djangosaml2.signals import pre_user_save
 
 logger = logging.getLogger('djangosaml2')

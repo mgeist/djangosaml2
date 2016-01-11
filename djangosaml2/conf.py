@@ -17,11 +17,10 @@ import copy
 
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
-from django.utils.importlib import import_module
-
+from djangosaml2.utils import get_custom_setting
 from saml2.config import SPConfig
 
-from djangosaml2.utils import get_custom_setting
+from importlib import import_module
 
 
 def get_config_loader(path, request=None):
