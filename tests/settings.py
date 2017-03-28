@@ -1,7 +1,6 @@
 # Django settings for tests2 project.
 
 DEBUG = True
-TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
@@ -74,18 +73,10 @@ STATICFILES_DIRS = (
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-#    'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = 'xvds$ppv5ha75qg1yx3aax7ugr_2*fmdrc(lrc%x7kdez-63xn'
-
-# List of callables that know how to import templates from various sources.
-TEMPLATE_LOADERS = (
-    'django.template.loaders.filesystem.Loader',
-    'django.template.loaders.app_directories.Loader',
-#     'django.template.loaders.eggs.Loader',
-)
 
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
@@ -101,12 +92,6 @@ ROOT_URLCONF = ''
 
 # Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = 'tests2.wsgi.application'
-
-TEMPLATE_DIRS = (
-    # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
-    # Always use forward slashes, even on Windows.
-    # Don't forget to use absolute paths, not relative paths.
-)
 
 INSTALLED_APPS = (
     'django.contrib.auth',
@@ -166,6 +151,25 @@ import django
 if django.VERSION < (1, 4):
     del LOGGING['filters']['require_debug_false']
     del LOGGING['handlers']['mail_admins']['filters']
+
+if django.VERSION < (1, 10):
+    TEMPLATE_DEBUG = DEBUG
+    # List of callables that know how to import templates from various sources.
+    TEMPLATE_LOADERS = (
+        'django.template.loaders.filesystem.Loader',
+        'django.template.loaders.app_directories.Loader',
+    )
+else:
+    TEMPLATES = [{
+        'BACKEND': 'django.template.backends.django.DjangoTemplate',
+        'OPTIONS': {
+            'debug': DEBUG,
+            'loaders': [
+                'django.template.loaders.filesystem.Loader',
+                'django.template.loaders.app_directories.Loader',
+            ]
+        }
+    }]
 
 AUTHENTICATION_BACKENDS = (
     'djangosaml2.backends.Saml2Backend',

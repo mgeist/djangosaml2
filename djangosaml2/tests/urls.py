@@ -12,25 +12,31 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import django
+from django.contrib import admin
+
+from djangosaml2.views import (assertion_consumer_service, login, logout,
+                               logout_service, metadata)
+
 try:
-    from django.conf.urls import patterns, include, url
+    from django.conf.urls import include, url
+    if django.VERSION < (1, 10):
+        from django.conf.urls import patterns
 # Fallback for Django versions < 1.4
 except ImportError:
     from django.conf.urls.defaults import patterns, include, url
 
-from django.contrib import admin
-
 admin.autodiscover()
 
-
-urlpatterns = patterns(
-    'djangosaml2.views',
-    url(r'^login/$', 'login', name='saml2_login'),
-    url(r'^acs/$', 'assertion_consumer_service', name='saml2_acs'),
-    url(r'^logout/$', 'logout', name='saml2_logout'),
-    url(r'^ls/$', 'logout_service', name='saml2_ls'),
-    url(r'^metadata/$', 'metadata', name='saml2_metadata'),
-
+urlpatterns = [
+    url(r'^login/$', login, name='saml2_login'),
+    url(r'^acs/$', assertion_consumer_service, name='saml2_acs'),
+    url(r'^logout/$', logout, name='saml2_logout'),
+    url(r'^ls/$', logout_service, name='saml2_ls'),
+    url(r'^metadata/$', metadata, name='saml2_metadata'),
     # this is needed for the tests
     url(r'^admin/', include(admin.site.urls)),
-)
+]
+
+if django.VERSION < (1, 10):
+    urlpatterns = patterns('', *urlpatterns)

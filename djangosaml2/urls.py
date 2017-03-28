@@ -13,19 +13,28 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import django
+from .views import (assertion_consumer_service, login, logout, logout_service,
+                    metadata)
+
 try:
-    from django.conf.urls import patterns, handler500, url
+    from django.conf.urls import handler500, url
+    if django.VERSION < (1, 10):
+        from django.conf.urls import patterns
 # Fallback for Django versions < 1.4
 except ImportError:
     from django.conf.urls.defaults import patterns, handler500, url
 
-urlpatterns = patterns(
-    'djangosaml2.views',
-    url(r'^login/$', 'login', name='saml2_login'),
-    url(r'^acs/$', 'assertion_consumer_service', name='saml2_acs'),
-    url(r'^logout/$', 'logout', name='saml2_logout'),
-    url(r'^ls/$', 'logout_service', name='saml2_ls'),
-    url(r'^metadata/$', 'metadata', name='saml2_metadata'),
-)
+
+urlpatterns = [
+    url(r'^login/$', login, name='saml2_login'),
+    url(r'^acs/$', assertion_consumer_service, name='saml2_acs'),
+    url(r'^logout/$', logout, name='saml2_logout'),
+    url(r'^ls/$', logout_service, name='saml2_ls'),
+    url(r'^metadata/$', metadata, name='saml2_metadata'),
+]
+
+if django.VERSION < (1, 10):
+    urlpatterns = patterns('', *urlpatterns)
 
 handler500 = handler500
