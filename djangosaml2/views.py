@@ -201,7 +201,8 @@ def assertion_consumer_service(request,
         create_unknown_user = create_unknown_user()
 
     logger.debug('Trying to authenticate the user')
-    user = auth.authenticate(session_info=session_info,
+    user = auth.authenticate(request=request,
+                             session_info=session_info,
                              attribute_mapping=attribute_mapping,
                              create_unknown_user=create_unknown_user)
     if user is None:
